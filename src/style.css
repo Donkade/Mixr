@@ -680,3 +680,733 @@ body {
 .btn-card-delete:hover {
   background-color: rgba(255, 59, 48, 0.15);
 }
+
+/* Base desktop support configurations */
+.header-logo-row {
+  display: flex;
+  align-items: center;
+}
+
+.btn-menu-toggle {
+  display: none; /* Hidden on desktop */
+}
+
+.sidebar-header {
+  display: none; /* Hidden on desktop */
+}
+
+.sidebar-backdrop {
+  display: none; /* Hidden on desktop */
+}
+
+.mobile-quick-tools {
+  display: none; /* Hidden on desktop */
+}
+
+/* ==========================================
+   Mobile & Tablet Responsiveness Overrides
+   ========================================== */
+@media (max-width: 1024px) {
+  /* Studio Container Layout */
+  .studio-container {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  /* Header adjustments */
+  .studio-header {
+    padding: 12px 16px;
+    gap: 12px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  /* Hamburger Menu Toggle Button */
+  .btn-menu-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 44px; /* Minimum 44px touch target */
+    touch-action: manipulation;
+    transition: all 0.2s;
+  }
+
+  .btn-menu-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .hamburger-icon {
+    font-size: 18px;
+  }
+
+  /* Active Color Panel responsive tweaks */
+  .active-color-panel {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    justify-content: space-between;
+    padding: 10px 14px;
+  }
+
+  .color-details {
+    margin-right: auto;
+  }
+
+  .color-name {
+    font-size: 14px;
+  }
+
+  /* Compact controls inside panel */
+  .active-color-panel .btn-primary {
+    padding: 8px 14px;
+    font-size: 13px;
+    min-height: 44px; /* Minimum 44px touch target */
+  }
+
+  /* Off-screen Sidebar Control Panel (Drawer) */
+  .control-panel {
+    position: fixed;
+    top: 0;
+    left: -330px; /* Off-screen by default */
+    bottom: 0;
+    width: 310px;
+    z-index: 1200;
+    border-radius: 0 16px 16px 0;
+    border: none;
+    border-right: 1px solid var(--border-color);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .control-panel.open {
+    left: 0; /* Slide in! */
+  }
+
+  /* Sidebar Header Area (Close Button) */
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 8px;
+  }
+
+  .sidebar-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .btn-menu-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 20px;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+    touch-action: manipulation;
+  }
+
+  .btn-menu-close:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+  }
+
+  /* Backdrop Overlay */
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1150;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    display: block; /* overridden from default none */
+  }
+
+  .sidebar-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Mobile floating/quick tools bar */
+  .mobile-quick-tools {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 30px;
+    padding: 6px;
+    gap: 6px;
+    box-shadow: var(--shadow-md);
+    margin: 8px auto;
+    width: fit-content;
+  }
+
+  .quick-tool-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 44px; /* Touch target */
+    touch-action: manipulation;
+  }
+
+  .quick-tool-btn:hover {
+    color: var(--text-main);
+  }
+
+  .quick-tool-btn.active {
+    background-color: var(--primary-accent);
+    color: #fff;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Touch Target Enhancements */
+  .theme-btn, .btn-secondary, .btn-card-copy, .btn-card-delete, .paint-tube-btn {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  .paint-tubes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Compact Swatches History */
+  .swatches-footer {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .swatches-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .swatch-card {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  /* Canvas and board frame fluid width rules */
+  .board-frame {
+    padding: 10px;
+    border-radius: 16px;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  #palette-canvas {
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 800 / 550;
+  }
+}
+
+/* ==========================================
+   Small Tablet / Large Phone (640px)
+   ========================================== */
+@media (max-width: 640px) {
+  .studio-container {
+    padding: 8px;
+    gap: 12px;
+  }
+
+  .studio-header {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .header-logo h1 {
+    font-size: 22px;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+
+  .logo-icon {
+    font-size: 24px;
+  }
+
+  .active-color-panel {
+    padding: 8px 12px;
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
+
+  .swatch-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .active-swatch {
+    width: 32px;
+    height: 32px;
+  }
+
+  .color-name {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+  }
+
+  .color-hex {
+    font-size: 11px;
+  }
+
+  .active-color-panel .btn-primary {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-height: 36px;
+    white-space: nowrap;
+  }
+
+  .btn-menu-toggle {
+    padding: 6px 10px;
+    font-size: 13px;
+    min-height: 38px;
+  }
+
+  .toggle-text {
+    display: none;
+  }
+
+  .mobile-quick-tools {
+    padding: 4px;
+    gap: 4px;
+    border-radius: 24px;
+  }
+
+  .quick-tool-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-height: 38px;
+    gap: 4px;
+  }
+
+  .quick-label {
+    display: none;
+  }
+
+  .paint-tubes-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .paint-tube-btn {
+    padding: 6px;
+  }
+
+  .tube-label {
+    font-size: 10px;
+  }
+
+  .board-frame {
+    padding: 6px;
+    border-radius: 12px;
+  }
+
+  .canvas-instruction {
+    font-size: 11px;
+    padding: 8px 12px;
+  }
+
+  .swatches-footer {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .footer-header h2 {
+    font-size: 15px;
+  }
+
+  .swatches-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+  }
+
+  .swatch-card {
+    padding: 6px;
+    gap: 8px;
+  }
+
+  .swatch-paint-dollop {
+    width: 36px;
+    height: 36px;
+  }
+
+  .swatch-card-name {
+    font-size: 12px;
+  }
+
+  .swatch-card-hex code {
+    font-size: 10px;
+  }
+
+  .btn-secondary {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* ==========================================
+   Phone Portrait (480px)
+   ========================================== */
+@media (max-width: 480px) {
+  .studio-container {
+    padding: 6px;
+    gap: 10px;
+  }
+
+  .studio-header {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .header-logo-row {
+    gap: 6px;
+  }
+
+  .header-logo h1 {
+    font-size: 18px;
+  }
+
+  .logo-sub {
+    display: none;
+  }
+
+  .active-color-panel {
+    padding: 6px 10px;
+    gap: 8px;
+  }
+
+  .swatch-wrapper {
+    width: 34px;
+    height: 34px;
+  }
+
+  .active-swatch {
+    width: 28px;
+    height: 28px;
+  }
+
+  .color-name {
+    font-size: 11px;
+    max-width: 80px;
+  }
+
+  .color-hex {
+    font-size: 10px;
+  }
+
+  .hex-row {
+    gap: 4px;
+  }
+
+  .btn-icon {
+    font-size: 12px;
+  }
+
+  .active-color-panel .btn-primary {
+    padding: 5px 8px;
+    font-size: 11px;
+    min-height: 32px;
+  }
+
+  .btn-menu-toggle {
+    padding: 5px 8px;
+    font-size: 12px;
+    min-height: 36px;
+  }
+
+  .hamburger-icon {
+    font-size: 16px;
+  }
+
+  /* Paint tubes single column on small phones */
+  .paint-tubes-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+  }
+
+  .paint-tube-btn {
+    padding: 4px;
+  }
+
+  .tube-body::after {
+    height: 8px;
+  }
+
+  .custom-picker-row {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  #custom-picker {
+    width: 36px;
+    height: 24px;
+  }
+
+  .tools-grid {
+    gap: 6px;
+  }
+
+  .tool-btn {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .tool-icon {
+    font-size: 15px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .tool-label {
+    font-size: 12px;
+  }
+
+  .themes-row {
+    gap: 4px;
+  }
+
+  .theme-btn {
+    font-size: 11px;
+    padding: 6px;
+  }
+
+  .btn-danger {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .mobile-quick-tools {
+    padding: 3px;
+    gap: 3px;
+  }
+
+  .quick-tool-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+    min-height: 34px;
+  }
+
+  #palette-canvas {
+    border-radius: 10px;
+  }
+
+  .canvas-instruction {
+    font-size: 10px;
+    padding: 6px 10px;
+  }
+
+  .swatches-footer {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .footer-header h2 {
+    font-size: 14px;
+  }
+
+  .footer-actions {
+    gap: 6px;
+  }
+
+  .btn-secondary {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .swatches-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 6px;
+  }
+
+  .swatch-card {
+    padding: 5px;
+    gap: 6px;
+  }
+
+  .swatch-paint-dollop {
+    width: 32px;
+    height: 32px;
+  }
+
+  .swatch-card-name {
+    font-size: 11px;
+  }
+
+  .swatch-card-hex code {
+    font-size: 9px;
+  }
+
+  .btn-card-copy,
+  .btn-card-delete {
+    font-size: 12px;
+    padding: 4px;
+  }
+
+  /* Sidebar drawer smaller on phones */
+  .control-panel {
+    width: 280px;
+    left: -295px;
+  }
+
+  .sidebar-header h3 {
+    font-size: 14px;
+  }
+
+  .btn-menu-close {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+  }
+}
+
+/* ==========================================
+   Very Small Phone (375px)
+   ========================================== */
+@media (max-width: 375px) {
+  .studio-container {
+    padding: 4px;
+    gap: 8px;
+  }
+
+  .studio-header {
+    padding: 6px 8px;
+  }
+
+  .header-logo h1 {
+    font-size: 16px;
+  }
+
+  .active-color-panel {
+    padding: 4px 8px;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .swatch-wrapper {
+    width: 28px;
+    height: 28px;
+  }
+
+  .active-swatch {
+    width: 22px;
+    height: 22px;
+  }
+
+  .color-name {
+    font-size: 10px;
+    max-width: 60px;
+  }
+
+  .color-hex {
+    font-size: 9px;
+  }
+
+  .active-color-panel .btn-primary {
+    font-size: 10px;
+    padding: 4px 6px;
+    min-height: 28px;
+  }
+
+  .btn-menu-toggle {
+    padding: 4px 6px;
+    font-size: 11px;
+    min-height: 32px;
+  }
+
+  .control-panel {
+    width: 250px;
+    left: -265px;
+  }
+
+  .panel-section h2 {
+    font-size: 11px;
+  }
+
+  .paint-tube-btn .tube-label {
+    font-size: 9px;
+  }
+
+  .tool-label {
+    font-size: 11px;
+  }
+
+  .mobile-quick-tools {
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .quick-tool-btn {
+    padding: 4px 8px;
+    font-size: 10px;
+    min-height: 30px;
+  }
+
+  .swatches-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .swatch-card {
+    min-width: 0;
+  }
+
+  .swatch-paint-dollop {
+    width: 28px;
+    height: 28px;
+  }
+
+  .swatch-card-name {
+    font-size: 10px;
+  }
+
+  .board-frame {
+    padding: 4px;
+    border-radius: 10px;
+  }
+}
