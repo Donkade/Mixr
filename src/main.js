@@ -144,12 +144,20 @@ let sliceCurrent = { x: 0, y: 0 };
 const appContainer = document.querySelector('#app');
 appContainer.innerHTML = `
   <div class="studio-container">
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+    
     <!-- Header Area -->
     <header class="studio-header">
-      <div class="header-logo">
-        <span class="logo-icon">🎨</span>
-        <h1>Mixr</h1>
-        <span class="logo-sub">Paint Studio</span>
+      <div class="header-logo-row">
+        <button id="btn-menu-toggle" class="btn-menu-toggle" title="Open Studio Controls" aria-label="Open Studio Controls">
+          <span class="hamburger-icon">☰</span>
+          <span class="toggle-text">Controls</span>
+        </button>
+        <div class="header-logo">
+          <span class="logo-icon">🎨</span>
+          <h1>Mixr</h1>
+          <span class="logo-sub">Paint Studio</span>
+        </div>
       </div>
       
       <!-- Real-time Active Color Bar -->
@@ -170,7 +178,12 @@ appContainer.innerHTML = `
 
     <div class="studio-workspace">
       <!-- Sidebar Control Panel -->
-      <aside class="control-panel">
+      <aside id="control-panel" class="control-panel">
+        <div class="sidebar-header">
+          <h3>Studio Controls</h3>
+          <button id="btn-menu-close" class="btn-menu-close" title="Close Controls" aria-label="Close Controls">✕</button>
+        </div>
+        
         <!-- Paint Tubes -->
         <section class="panel-section">
           <h2>Paint Palette Tubes</h2>
@@ -238,6 +251,23 @@ appContainer.innerHTML = `
           <canvas id="palette-canvas" width="800" height="550"></canvas>
           <div id="slice-laser" class="slice-laser"></div>
         </div>
+        
+        <!-- Mobile Floating Quick-Tools -->
+        <div class="mobile-quick-tools">
+          <button class="quick-tool-btn active" data-tool="spatula" title="Spatula Tool">
+            <span class="quick-icon">🥄</span>
+            <span class="quick-label">Spatula</span>
+          </button>
+          <button class="quick-tool-btn" data-tool="stir" title="Stir Knife">
+            <span class="quick-icon">🔄</span>
+            <span class="quick-label">Stir</span>
+          </button>
+          <button class="quick-tool-btn" data-tool="knife" title="Slice Knife">
+            <span class="quick-icon">🔪</span>
+            <span class="quick-label">Slice</span>
+          </button>
+        </div>
+
         <div class="canvas-instruction">
           <span id="instruction-text">💡 Click on blank space to place a dollop of paint. Drag dollops together with the Spatula to mix!</span>
         </div>
@@ -318,7 +348,18 @@ customPicker.addEventListener('input', (e) => {
 function setTool(toolName) {
   currentTool = toolName;
   document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(`tool-${toolName}`).classList.add('active');
+  const sidebarToolBtn = document.getElementById(`tool-${toolName}`);
+  if (sidebarToolBtn) sidebarToolBtn.classList.add('active');
+  
+  // Sync quick tools active state
+  document.querySelectorAll('.quick-tool-btn').forEach(btn => {
+    if (btn.dataset.tool === toolName) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
   document.getElementById('instruction-text').textContent = toolInstructions[toolName];
   canvas.style.cursor = toolName === 'spatula' ? 'cell' : toolName === 'stir' ? 'w-resize' : 'crosshair';
 }
@@ -326,6 +367,35 @@ function setTool(toolName) {
 document.getElementById('tool-spatula').addEventListener('click', () => setTool('spatula'));
 document.getElementById('tool-stir').addEventListener('click', () => setTool('stir'));
 document.getElementById('tool-knife').addEventListener('click', () => setTool('knife'));
+
+// Mobile sidebar toggle event listeners
+const controlPanel = document.getElementById('control-panel');
+const btnMenuToggle = document.getElementById('btn-menu-toggle');
+const btnMenuClose = document.getElementById('btn-menu-close');
+const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+
+if (btnMenuToggle && btnMenuClose && sidebarBackdrop && controlPanel) {
+  const openSidebar = () => {
+    controlPanel.classList.add('open');
+    sidebarBackdrop.classList.add('open');
+  };
+  const closeSidebar = () => {
+    controlPanel.classList.remove('open');
+    sidebarBackdrop.classList.remove('open');
+  };
+  btnMenuToggle.addEventListener('click', openSidebar);
+  btnMenuClose.addEventListener('click', closeSidebar);
+  sidebarBackdrop.addEventListener('click', closeSidebar);
+}
+
+// Mobile quick tools listeners and sync with main sidebar tools
+const quickToolBtns = document.querySelectorAll('.quick-tool-btn');
+quickToolBtns.forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const tool = e.currentTarget.dataset.tool;
+    setTool(tool);
+  });
+});
 
 // Theme switcher buttons
 document.querySelectorAll('.theme-btn').forEach(btn => {
@@ -762,9 +832,14 @@ function getCoordinates(e) {
   // Support touch interface
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  
+  // Prevent division by zero if rect has 0 width or height (not fully rendered yet)
+  const widthRatio = rect.width > 0 ? (canvas.width / rect.width) : 1;
+  const heightRatio = rect.height > 0 ? (canvas.height / rect.height) : 1;
+
   return {
-    x: clientX - rect.left,
-    y: clientY - rect.top
+    x: (clientX - rect.left) * widthRatio,
+    y: (clientY - rect.top) * heightRatio
   };
 }
 
