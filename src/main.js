@@ -132,6 +132,11 @@ let savedSwatches = JSON.parse(localStorage.getItem('mixr-swatches') || '[]');
 let activeBlob = null; // Currently selected/dragged blob
 let selectedBlobForInfo = null; // Blob shown in top active-color panel
 
+// Undo/Redo History
+const MAX_HISTORY = 50;
+let undoStack = [];
+let redoStack = [];
+
 // Interaction variables
 let dragOffset = { x: 0, y: 0 };
 let isSlicing = false;
@@ -241,6 +246,14 @@ appContainer.innerHTML = `
 
         <!-- Board Actions -->
         <section class="panel-section actions-section">
+          <div class="undo-redo-row">
+            <button id="btn-undo" class="btn-secondary undo-btn" disabled title="Undo last action (Ctrl+Z)">
+              ↩ Undo
+            </button>
+            <button id="btn-redo" class="btn-secondary redo-btn" disabled title="Redo last undone action (Ctrl+Shift+Z)">
+              ↪ Redo
+            </button>
+          </div>
           <button id="btn-clear-palette" class="btn-danger">🧽 Clean Palette Board</button>
         </section>
       </aside>
@@ -624,6 +637,75 @@ function initDefaultBlobs() {
   selectedBlobForInfo = blobs[0];
   const rgb = blobs[0].rgb;
   updateActiveColorPanel(rgb.r, rgb.g, rgb.b);
+  saveState();
+}
+
+// ==========================================
+// Undo/Redo State Management
+// ==========================================
+
+// Serialize blobs to a plain JSON-safe array
+function serializeBlobs() {
+  return blobs.map(b => ({
+    x: b.x, y: b.y, volume: b.volume, radius: b.radius,
+    absorbance: { ...b.absorbance },
+    homogeneity: b.homogeneity,
+    color1: b.color1, color2: b.color2,
+    marbleSeed: b.marbleSeed,
+    marbleCurves: b.marbleCurves.map(c => ({ ...c }))
+  }));
+}
+
+// Restore blobs from serialized state
+function restoreBlobs(state) {
+  blobs = state.map(s => {
+    const b = new PaintBlob(s.x, s.y, absorbanceToRgb(s.absorbance), s.volume);
+    b.absorbance = { ...s.absorbance };
+    b.homogeneity = s.homogeneity;
+    b.color1 = s.color1;
+    b.color2 = s.color2;
+    b.marbleSeed = s.marbleSeed;
+    b.marbleCurves = s.marbleCurves.map(c => ({ ...c }));
+    b.radius = s.radius;
+    b.updateColor();
+    return b;
+  });
+}
+
+// Save current state to undo stack (called before each action)
+function saveState() {
+  undoStack.push(serializeBlobs());
+  if (undoStack.length > MAX_HISTORY) undoStack.shift();
+  redoStack = []; // Clear redo on new action
+  updateUndoRedoButtons();
+}
+
+function undo() {
+  if (undoStack.length < 2) return; // Need at least current + previous
+  // Move current state to redo stack
+  redoStack.push(undoStack.pop());
+  // Restore previous state
+  restoreBlobs(undoStack[undoStack.length - 1]);
+  selectedBlobForInfo = blobs.length > 0 ? blobs[0] : null;
+  if (selectedBlobForInfo) updateActiveColorPanel(selectedBlobForInfo.rgb.r, selectedBlobForInfo.rgb.g, selectedBlobForInfo.rgb.b);
+  updateUndoRedoButtons();
+}
+
+function redo() {
+  if (redoStack.length === 0) return;
+  const state = redoStack.pop();
+  undoStack.push(state);
+  restoreBlobs(state);
+  selectedBlobForInfo = blobs.length > 0 ? blobs[0] : null;
+  if (selectedBlobForInfo) updateActiveColorPanel(selectedBlobForInfo.rgb.r, selectedBlobForInfo.rgb.g, selectedBlobForInfo.rgb.b);
+  updateUndoRedoButtons();
+}
+
+function updateUndoRedoButtons() {
+  const btnUndo = document.getElementById('btn-undo');
+  const btnRedo = document.getElementById('btn-redo');
+  if (btnUndo) btnUndo.disabled = undoStack.length < 2;
+  if (btnRedo) btnRedo.disabled = redoStack.length === 0;
 }
 
 // ==========================================
@@ -900,6 +982,7 @@ function handleStart(coords, e) {
       updateActiveColorPanel(rgb.r, rgb.g, rgb.b);
     } else {
       // Squeeze out new dollop of selected color!
+      saveState();
       const rgb = hexToRgb(activePaintColor);
       const newBlob = new PaintBlob(coords.x, coords.y, rgb, 1.0);
       
@@ -944,10 +1027,12 @@ function handleEnd(e) {
   if (activeBlob) {
     activeBlob.isDragging = false;
     activeBlob = null;
+    saveState(); // Save state after drag/move completes
   }
   
   if (currentTool === 'knife' && isSlicing) {
     isSlicing = false;
+    saveState();
     executeKnifeSlice(sliceStart, sliceCurrent);
   }
 }
@@ -1160,6 +1245,28 @@ document.getElementById('btn-export-png').addEventListener('click', () => {
   a.href = imageURL;
   a.download = 'mixr-studio-palette.png';
   a.click();
+});
+
+// ==========================================
+// Undo/Redo Event Listeners & Keyboard Shortcuts
+// ==========================================
+document.getElementById('btn-undo').addEventListener('click', undo);
+document.getElementById('btn-redo').addEventListener('click', redo);
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+    e.preventDefault();
+    undo();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+    e.preventDefault();
+    redo();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+    e.preventDefault();
+    redo();
+  }
 });
 
 // ==========================================

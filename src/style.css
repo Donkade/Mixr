@@ -463,6 +463,30 @@ body {
   width: 100%;
 }
 
+/* Undo/Redo button row */
+.undo-redo-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.undo-btn, .redo-btn {
+  text-align: center;
+  font-size: 13px;
+  padding: 10px 8px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.undo-btn:disabled, .redo-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .btn-danger:hover {
   background-color: var(--danger-color);
   color: #fff;
