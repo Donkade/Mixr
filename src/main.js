@@ -332,13 +332,32 @@ document.querySelectorAll('.paint-tube-btn').forEach(btn => {
     activePaintColor = targetBtn.dataset.color;
     const rgb = hexToRgb(activePaintColor);
     updateActiveColorPanel(rgb.r, rgb.g, rgb.b);
+    
+    // Auto-close sidebar on mobile after selecting a color
+    if (window.getComputedStyle(btnMenuToggle).display !== 'none') {
+      controlPanel.classList.remove('open');
+      sidebarBackdrop.classList.remove('open');
+    }
   });
 });
 
 // Custom color picker listener
-customPicker.addEventListener('input', (e) => {
+customPicker.addEventListener('change', (e) => {
   // Deselect preset tubes
   document.querySelectorAll('.paint-tube-btn').forEach(b => b.classList.remove('active'));
+  activePaintColor = e.target.value;
+  const rgb = hexToRgb(activePaintColor);
+  updateActiveColorPanel(rgb.r, rgb.g, rgb.b);
+  
+  // Auto-close sidebar on mobile after selecting a color
+  if (window.getComputedStyle(btnMenuToggle).display !== 'none') {
+    controlPanel.classList.remove('open');
+    sidebarBackdrop.classList.remove('open');
+  }
+});
+
+// Also keep 'input' for real-time preview if sidebar is open
+customPicker.addEventListener('input', (e) => {
   activePaintColor = e.target.value;
   const rgb = hexToRgb(activePaintColor);
   updateActiveColorPanel(rgb.r, rgb.g, rgb.b);
@@ -373,6 +392,7 @@ const controlPanel = document.getElementById('control-panel');
 const btnMenuToggle = document.getElementById('btn-menu-toggle');
 const btnMenuClose = document.getElementById('btn-menu-close');
 const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+const activeColorPanel = document.getElementById('active-color-panel');
 
 if (btnMenuToggle && btnMenuClose && sidebarBackdrop && controlPanel) {
   const openSidebar = () => {
@@ -386,6 +406,18 @@ if (btnMenuToggle && btnMenuClose && sidebarBackdrop && controlPanel) {
   btnMenuToggle.addEventListener('click', openSidebar);
   btnMenuClose.addEventListener('click', closeSidebar);
   sidebarBackdrop.addEventListener('click', closeSidebar);
+  
+  // Make active color panel clickable to open controls on mobile
+  if (activeColorPanel) {
+    activeColorPanel.addEventListener('click', (e) => {
+      // Only trigger if we're in mobile view (toggle button is visible)
+      if (window.getComputedStyle(btnMenuToggle).display !== 'none') {
+        openSidebar();
+      }
+    });
+    activeColorPanel.style.cursor = 'pointer';
+    activeColorPanel.title = 'Click to open Studio Controls';
+  }
 }
 
 // Mobile quick tools listeners and sync with main sidebar tools
@@ -829,9 +861,19 @@ function executeKnifeSlice(p1, p2) {
 // ==========================================
 function getCoordinates(e) {
   const rect = canvas.getBoundingClientRect();
+  let clientX, clientY;
+  
   // Support touch interface
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  if (e.touches && e.touches.length > 0) {
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
+  } else if (e.changedTouches && e.changedTouches.length > 0) {
+    clientX = e.changedTouches[0].clientX;
+    clientY = e.changedTouches[0].clientY;
+  } else {
+    clientX = e.clientX;
+    clientY = e.clientY;
+  }
   
   // Prevent division by zero if rect has 0 width or height (not fully rendered yet)
   const widthRatio = rect.width > 0 ? (canvas.width / rect.width) : 1;
