@@ -178,6 +178,7 @@ appContainer.innerHTML = `
           </div>
         </div>
         <button id="btn-save-swatch" class="btn-primary">✨ Save Swatch</button>
+        <button id="btn-delete-blob" class="btn-delete-blob" title="Delete selected paint blob" style="display:none">🗑️</button>
       </div>
     </header>
 
@@ -334,6 +335,12 @@ function updateActiveColorPanel(r, g, b) {
   activeSwatchEl.style.backgroundColor = hex;
   colorHexEl.textContent = hex;
   colorNameEl.textContent = getColorName(r, g, b);
+  
+  // Show delete button only if a blob is selected on the canvas
+  const deleteBtn = document.getElementById('btn-delete-blob');
+  if (deleteBtn) {
+    deleteBtn.style.display = selectedBlobForInfo && blobs.includes(selectedBlobForInfo) ? 'flex' : 'none';
+  }
 }
 
 // Set up active color preset listener
@@ -1088,6 +1095,26 @@ btnCopyHex.addEventListener('click', () => {
   });
 });
 
+// Delete single blob handler
+const btnDeleteBlob = document.getElementById('btn-delete-blob');
+btnDeleteBlob.addEventListener('click', () => {
+  if (selectedBlobForInfo && blobs.includes(selectedBlobForInfo)) {
+    saveState();
+    // Remove the selected blob
+    blobs = blobs.filter(b => b !== selectedBlobForInfo);
+    // Spawn particles for visual feedback
+    spawnMergeParticles(selectedBlobForInfo.x, selectedBlobForInfo.y, selectedBlobForInfo.color);
+    selectedBlobForInfo = blobs.length > 0 ? blobs[0] : null;
+    if (selectedBlobForInfo) {
+      updateActiveColorPanel(selectedBlobForInfo.rgb.r, selectedBlobForInfo.rgb.g, selectedBlobForInfo.rgb.b);
+    } else {
+      // Reset to default color
+      const rgb = hexToRgb(activePaintColor);
+      updateActiveColorPanel(rgb.r, rgb.g, rgb.b);
+    }
+  }
+});
+
 // ==========================================
 // Swatch Palette Collection History (Premium Features)
 // ==========================================
@@ -1266,6 +1293,15 @@ document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
     e.preventDefault();
     redo();
+  }
+  
+  // Delete selected blob with Delete/Backspace key
+  if ((e.key === 'Delete' || e.key === 'Backspace') && selectedBlobForInfo && blobs.includes(selectedBlobForInfo)) {
+    // Don't trigger if typing in an input
+    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      btnDeleteBlob.click();
+    }
   }
 });
 
